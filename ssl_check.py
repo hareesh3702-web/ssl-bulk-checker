@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from email.message import EmailMessage
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-DOMAINS_FILE = "domains.txt"
+DOMAINS_FILE = "domain.txt"
 TIMEOUT = 10
 WARNING_DAYS = 30
 DIGICERT_EMAIL_TO = os.getenv("DIGICERT_EMAIL_TO", "hareesh3702@gmail.com")
