@@ -1,20 +1,24 @@
 name: Bulk SSL Certificate Check
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "30 3 * * *"
-  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   ssl-check:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -26,4 +30,4 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
           DIGICERT_EMAIL_TO: ${{ secrets.DIGICERT_EMAIL_TO }}
-        run: python ssl_check.py
+        run: python -u ssl_check.py
