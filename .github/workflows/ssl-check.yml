@@ -2,8 +2,10 @@ name: Bulk SSL Certificate Check
 
 on:
   workflow_dispatch:
+
   schedule:
     - cron: "30 3 * * *"
+
   push:
     branches:
       - main
