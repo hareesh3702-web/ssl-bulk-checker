@@ -4,14 +4,32 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "30 3 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "domain.txt"
+      - "domains.txt"
+      - "ssl_check.py"
+      - ".github/workflows/ssl-check.yml"
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ssl-pages
+  cancel-in-progress: false
 
 jobs:
   ssl-check:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -22,12 +40,26 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run SSL bulk checker
+      - name: Install certificate parser
+        run: python -m pip install "cryptography>=43,<47"
+
+      - name: Check SSL and generate website
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
-          DIGICERT_EMAIL_TO: ${{ secrets.DIGICERT_EMAIL_TO }}
         run: python -u ssl_check.py
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4
